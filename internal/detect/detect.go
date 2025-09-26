@@ -26,12 +26,14 @@ var info = map[string][]string{
 	"EntryPoints":        {},
 	"PackageManagers":    {},
 	"Frameworks":         {},
+	"Environments":       {},
 }
 
 const (
 	DockerPattern        = "dockerfile"
 	DockerComposePattern = "docker-compose"
 	EntryPointPattern    = "main"
+	EnvPattern           = "env"
 )
 
 func Run(files []string, dir string) (map[string][]string, error) {
@@ -50,6 +52,9 @@ func Run(files []string, dir string) (map[string][]string, error) {
 		}
 		if fileByPattern(filename, EntryPointPattern) {
 			info["EntryPoints"] = append(info["EntryPoints"], relativePath)
+		}
+		if fileByPattern(filename, EnvPattern) {
+			info["Environments"] = append(info["Environments"], relativePath)
 		}
 
 		fileLanguage := language(ext)

@@ -44,4 +44,12 @@ func Show(info map[string][]string) {
 	} else {
 		fmt.Println("Frameworks: not found")
 	}
+
+	if len(info["Environments"]) != 0 {
+		for _, file := range info["Environments"] {
+			fmt.Println("Environment: ", file)
+		}
+	} else {
+		fmt.Println("Environments: not found")
+	}
 }
