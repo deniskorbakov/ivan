@@ -18,83 +18,77 @@ var languageExtensions = map[string][]string{
 	"Swift":      {".swift"},
 }
 
+var info = map[string][]string{
+	"Language":           {},
+	"DockerFiles":        {},
+	"DockerComposeFiles": {},
+	"EntryPoints":        {},
+}
+
 const (
-	DockerFilename        = "dockerfile"
-	DockerComposeFilename = "docker-compose"
-	EntryPointFilename    = "main"
+	DockerPattern        = "dockerfile"
+	DockerComposePattern = "docker-compose"
+	EntryPointPattern    = "main"
 )
 
-func Language(files []string) (string, error) {
-	var mainLanguage string
-
+func Run(files []string) (map[string][]string, error) {
 	languageCount := make(map[string]int)
 
 	for _, file := range files {
+		filename := filepath.Base(file)
 		ext := filepath.Ext(file)
 
-		for lang, exts := range languageExtensions {
-			for _, langExt := range exts {
-				if ext == langExt {
-					languageCount[lang]++
-					break
-				}
+		if fileByPattern(filename, DockerPattern) {
+			info["DockerFiles"] = append(info["DockerFiles"], file)
+		}
+		if fileByPattern(filename, DockerComposePattern) {
+			info["DockerComposeFiles"] = append(info["DockerComposeFiles"], file)
+		}
+
+		if fileByPattern(filename, EntryPointPattern) {
+			info["EntryPoints"] = append(info["EntryPoints"], file)
+		}
+
+		fileLanguage := language(ext)
+		if fileLanguage != "" {
+			languageCount[fileLanguage]++
+		}
+	}
+
+	setMainLanguage(languageCount)
+
+	return info, nil
+}
+
+func language(ext string) string {
+	ext = strings.ToLower(ext)
+	for lang, exts := range languageExtensions {
+		for _, langExt := range exts {
+			if ext == langExt {
+				return lang
 			}
 		}
 	}
 
-	maxCount := 0
-	for lang, count := range languageCount {
-		if count > maxCount {
-			maxCount = count
-			mainLanguage = lang
-		}
-	}
-
-	if mainLanguage == "" {
-		return "unknown", nil
-	}
-
-	return mainLanguage, nil
+	return ""
 }
 
-func DockerFiles(files []string) []string {
-	var dockerFiles []string
-
-	for _, file := range files {
-		filename := filepath.Base(file)
-
-		if strings.Contains(strings.ToLower(filename), DockerFilename) {
-			dockerFiles = append(dockerFiles, file)
+func setMainLanguage(languageCount map[string]int) {
+	if len(languageCount) > 0 {
+		mainLanguage := ""
+		maxCount := 0
+		for lang, count := range languageCount {
+			if count > maxCount {
+				maxCount = count
+				mainLanguage = lang
+			}
 		}
+		info["Language"] = []string{mainLanguage}
+	} else {
+		info["Language"] = []string{"not found"}
 	}
-
-	return dockerFiles
 }
 
-func DockerComposeFiles(files []string) []string {
-	var dockerComposeFiles []string
-
-	for _, file := range files {
-		filename := filepath.Base(file)
-
-		if strings.Contains(strings.ToLower(filename), DockerComposeFilename) {
-			dockerComposeFiles = append(dockerComposeFiles, file)
-		}
-	}
-
-	return dockerComposeFiles
-}
-
-func EntryPoints(files []string) []string {
-	var entryPoints []string
-
-	for _, file := range files {
-		filename := filepath.Base(file)
-
-		if strings.Contains(strings.ToLower(filename), EntryPointFilename) {
-			entryPoints = append(entryPoints, file)
-		}
-	}
-
-	return entryPoints
+func fileByPattern(filename string, pattern string) bool {
+	return strings.Contains(strings.ToLower(filename), pattern)
 }
