@@ -28,4 +28,12 @@ func Show(info map[string][]string) {
 	} else {
 		fmt.Println("Entry points: not found")
 	}
+
+	if len(info["PackageManagers"]) != 0 {
+		for _, file := range info["PackageManagers"] {
+			fmt.Println("Package manager: ", file)
+		}
+	} else {
+		fmt.Println("Package managers: not found")
+	}
 }

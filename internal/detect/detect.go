@@ -23,6 +23,7 @@ var info = map[string][]string{
 	"DockerFiles":        {},
 	"DockerComposeFiles": {},
 	"EntryPoints":        {},
+	"PackageManagers":    {},
 }
 
 const (
@@ -44,7 +45,6 @@ func Run(files []string) (map[string][]string, error) {
 		if fileByPattern(filename, DockerComposePattern) {
 			info["DockerComposeFiles"] = append(info["DockerComposeFiles"], file)
 		}
-
 		if fileByPattern(filename, EntryPointPattern) {
 			info["EntryPoints"] = append(info["EntryPoints"], file)
 		}
@@ -53,11 +53,37 @@ func Run(files []string) (map[string][]string, error) {
 		if fileLanguage != "" {
 			languageCount[fileLanguage]++
 		}
+
+		pm := packageManager(filename)
+		if pm != "" {
+			info["PackageManagers"] = append(info["PackageManagers"], pm)
+		}
 	}
 
 	setMainLanguage(languageCount)
 
 	return info, nil
+}
+
+func packageManager(filename string) string {
+	if fileByPattern(filename, "uv.lock") {
+		return "uv"
+	}
+
+	if fileByPattern(filename, "requirements.txt") {
+		return "pip"
+	}
+
+	if fileByPattern(filename, "composer.json") {
+		return "composer"
+	}
+
+	if fileByPattern(filename, "package.json") {
+		return "npm"
+	}
+
+	return ""
+
 }
 
 func language(ext string) string {
