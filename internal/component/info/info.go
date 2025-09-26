@@ -36,4 +36,12 @@ func Show(info map[string][]string) {
 	} else {
 		fmt.Println("Package managers: not found")
 	}
+
+	if len(info["Frameworks"]) != 0 {
+		for _, name := range info["Frameworks"] {
+			fmt.Println("Framework: ", name)
+		}
+	} else {
+		fmt.Println("Frameworks: not found")
+	}
 }

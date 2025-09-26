@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 )
@@ -51,8 +50,7 @@ func Files(dir string) ([]string, error) {
 			return nil
 		}
 
-		relativePath := strings.ReplaceAll(path, dir, "")
-		files = append(files, relativePath)
+		files = append(files, path)
 
 		return nil
 	})

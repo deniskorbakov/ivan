@@ -1,6 +1,7 @@
 package detect
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -24,6 +25,7 @@ var info = map[string][]string{
 	"DockerComposeFiles": {},
 	"EntryPoints":        {},
 	"PackageManagers":    {},
+	"Frameworks":         {},
 }
 
 const (
@@ -32,21 +34,22 @@ const (
 	EntryPointPattern    = "main"
 )
 
-func Run(files []string) (map[string][]string, error) {
+func Run(files []string, dir string) (map[string][]string, error) {
 	languageCount := make(map[string]int)
 
 	for _, file := range files {
+		relativePath := strings.ReplaceAll(file, dir, "")
 		filename := filepath.Base(file)
 		ext := filepath.Ext(file)
 
 		if fileByPattern(filename, DockerPattern) {
-			info["DockerFiles"] = append(info["DockerFiles"], file)
+			info["DockerFiles"] = append(info["DockerFiles"], relativePath)
 		}
 		if fileByPattern(filename, DockerComposePattern) {
-			info["DockerComposeFiles"] = append(info["DockerComposeFiles"], file)
+			info["DockerComposeFiles"] = append(info["DockerComposeFiles"], relativePath)
 		}
 		if fileByPattern(filename, EntryPointPattern) {
-			info["EntryPoints"] = append(info["EntryPoints"], file)
+			info["EntryPoints"] = append(info["EntryPoints"], relativePath)
 		}
 
 		fileLanguage := language(ext)
@@ -54,7 +57,7 @@ func Run(files []string) (map[string][]string, error) {
 			languageCount[fileLanguage]++
 		}
 
-		pm := packageManager(filename)
+		pm := packageManager(filename, file)
 		if pm != "" {
 			info["PackageManagers"] = append(info["PackageManagers"], pm)
 		}
@@ -65,25 +68,76 @@ func Run(files []string) (map[string][]string, error) {
 	return info, nil
 }
 
-func packageManager(filename string) string {
+func packageManager(filename string, fullPath string) string {
 	if fileByPattern(filename, "uv.lock") {
+		if searchInFile(fullPath, "django") {
+			info["Frameworks"] = append(info["Frameworks"], "Django")
+		}
+
+		if searchInFile(fullPath, "fastapi") {
+			info["Frameworks"] = append(info["Frameworks"], "FastAPI")
+		}
+
 		return "uv"
 	}
 
 	if fileByPattern(filename, "requirements.txt") {
+		if searchInFile(fullPath, "django") {
+			info["Frameworks"] = append(info["Frameworks"], "Django")
+		}
+
+		if searchInFile(fullPath, "fastapi") {
+			info["Frameworks"] = append(info["Frameworks"], "FastAPI")
+		}
+
 		return "pip"
 	}
 
 	if fileByPattern(filename, "composer.json") {
+		if searchInFile(fullPath, "laravel") {
+			info["Frameworks"] = append(info["Frameworks"], "Laravel")
+		}
+
+		if searchInFile(fullPath, "symfony") {
+			info["Frameworks"] = append(info["Frameworks"], "Symfony")
+		}
+
+		if searchInFile(fullPath, "yii2") {
+			info["Frameworks"] = append(info["Frameworks"], "Yii2")
+		}
+
 		return "composer"
 	}
 
 	if fileByPattern(filename, "package.json") {
+		if searchInFile(fullPath, "vue") {
+			info["Frameworks"] = append(info["Frameworks"], "Vue")
+		}
+
+		if searchInFile(fullPath, "react") {
+			info["Frameworks"] = append(info["Frameworks"], "React")
+		}
+
+		if searchInFile(fullPath, "angular") {
+			info["Frameworks"] = append(info["Frameworks"], "Angular")
+		}
+
 		return "npm"
 	}
 
 	return ""
 
+}
+
+func searchInFile(file string, search string) bool {
+	content, err := os.ReadFile(file)
+	if err == nil {
+		fileContent := string(content)
+
+		return strings.Contains(fileContent, search)
+	}
+
+	return false
 }
 
 func language(ext string) string {

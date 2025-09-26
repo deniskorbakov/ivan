@@ -41,7 +41,7 @@ var buildCmd = &cobra.Command{
 			return err
 		}
 
-		info, err := detect.Run(files)
+		info, err := detect.Run(files, repDir)
 		if err != nil {
 			return err
 		}
