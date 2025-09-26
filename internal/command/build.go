@@ -45,11 +45,7 @@ var buildCmd = &cobra.Command{
 
 		fmt.Println("Language: ", language)
 
-		dockerFiles, err := detect.DockerFiles(files)
-		if err != nil {
-			return err
-		}
-
+		dockerFiles := detect.DockerFiles(files)
 		if len(dockerFiles) == 0 {
 			fmt.Println("Dockerfiles: No docker files found")
 		} else {
@@ -58,16 +54,21 @@ var buildCmd = &cobra.Command{
 			}
 		}
 
-		dockerComposeFiles, err := detect.DockerComposeFiles(files)
-		if err != nil {
-			return err
-		}
-
+		dockerComposeFiles := detect.DockerComposeFiles(files)
 		if len(dockerComposeFiles) == 0 {
 			fmt.Println("Docker Compose files: No docker files found")
 		} else {
 			for _, file := range dockerComposeFiles {
 				fmt.Println("Docker Compose file: ", file)
+			}
+		}
+
+		entryPoints := detect.EntryPoints(files)
+		if len(entryPoints) == 0 {
+			fmt.Println("Entry points: No entry points found")
+		} else {
+			for _, file := range entryPoints {
+				fmt.Println("Entry point: ", file)
 			}
 		}
 

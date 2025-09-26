@@ -20,7 +20,8 @@ var languageExtensions = map[string][]string{
 
 const (
 	DockerFilename        = "dockerfile"
-	DockerComposeFilename = "docker-compose.yml"
+	DockerComposeFilename = "docker-compose"
+	EntryPointFilename    = "main"
 )
 
 func Language(files []string) (string, error) {
@@ -56,30 +57,44 @@ func Language(files []string) (string, error) {
 	return mainLanguage, nil
 }
 
-func DockerFiles(files []string) ([]string, error) {
+func DockerFiles(files []string) []string {
 	var dockerFiles []string
 
 	for _, file := range files {
 		filename := filepath.Base(file)
 
-		if strings.ToLower(filename) == DockerFilename {
+		if strings.Contains(strings.ToLower(filename), DockerFilename) {
 			dockerFiles = append(dockerFiles, file)
 		}
 	}
 
-	return dockerFiles, nil
+	return dockerFiles
 }
 
-func DockerComposeFiles(files []string) ([]string, error) {
+func DockerComposeFiles(files []string) []string {
 	var dockerComposeFiles []string
 
 	for _, file := range files {
 		filename := filepath.Base(file)
 
-		if strings.ToLower(filename) == DockerComposeFilename {
+		if strings.Contains(strings.ToLower(filename), DockerComposeFilename) {
 			dockerComposeFiles = append(dockerComposeFiles, file)
 		}
 	}
 
-	return dockerComposeFiles, nil
+	return dockerComposeFiles
+}
+
+func EntryPoints(files []string) []string {
+	var entryPoints []string
+
+	for _, file := range files {
+		filename := filepath.Base(file)
+
+		if strings.Contains(strings.ToLower(filename), EntryPointFilename) {
+			entryPoints = append(entryPoints, file)
+		}
+	}
+
+	return entryPoints
 }
