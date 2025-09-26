@@ -1,10 +1,15 @@
 package build
 
 import (
+	"errors"
 	"net/url"
 )
 
 func validateRepository(repository string) error {
 	_, err := url.ParseRequestURI(repository)
-	return err
+	if err != nil {
+		return errors.New("url is invalid")
+	}
+
+	return nil
 }
