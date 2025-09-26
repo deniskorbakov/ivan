@@ -3,6 +3,8 @@ package build
 import (
 	"errors"
 	"net/url"
+	"os"
+	"strings"
 )
 
 func validateRepository(repository string) error {
@@ -12,4 +14,22 @@ func validateRepository(repository string) error {
 	}
 
 	return nil
+}
+
+func validateLocalRepository(repository string) error {
+	repository = strings.ReplaceAll(repository, " ", "")
+
+	errorExists := errors.New("repository does not exist")
+	errorNotDir := errors.New("repository is not a directory")
+
+	info, err := os.Stat(repository)
+	if errors.Is(err, os.ErrNotExist) {
+		return errorExists
+	}
+
+	if info.IsDir() {
+		return nil
+	}
+
+	return errorNotDir
 }

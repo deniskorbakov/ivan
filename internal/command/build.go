@@ -1,8 +1,6 @@
 package command
 
 import (
-	"fmt"
-
 	createBuildForm "github.com/deniskorbakov/ivan/internal/component/build"
 	infoComponent "github.com/deniskorbakov/ivan/internal/component/info"
 
@@ -24,16 +22,18 @@ var buildCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Repository: ", fields.Repository)
+		repDir := fields.RepositoryLocal
 
-		repDir, err := storage.TempDir()
-		if err != nil {
-			return err
-		}
+		if fields.RepositoryUrl != "" {
+			repDir, err = storage.TempDir()
+			if err != nil {
+				return err
+			}
 
-		err = repository.Save(repDir, fields.Repository)
-		if err != nil {
-			return err
+			err = repository.Save(repDir, fields.RepositoryUrl)
+			if err != nil {
+				return err
+			}
 		}
 
 		files, err := repository.Files(repDir)

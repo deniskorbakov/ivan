@@ -15,6 +15,7 @@ var skipDirs = []string{
 	".gitattributes",
 	".gitkeep",
 	"vendor",
+	"node_modules",
 }
 
 func Save(dir string, RepositoryUrl string) error {

@@ -33,7 +33,7 @@ const (
 	DockerPattern        = "dockerfile"
 	DockerComposePattern = "docker-compose"
 	EntryPointPattern    = "main"
-	EnvPattern           = "env"
+	EnvPattern           = ".env"
 )
 
 func Run(files []string, dir string) (map[string][]string, error) {
