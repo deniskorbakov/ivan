@@ -23,6 +23,7 @@ var buildCmd = &cobra.Command{
 		}
 
 		repDir := fields.RepositoryLocal
+		project := repDir
 
 		if fields.RepositoryUrl != "" {
 			repDir, err = storage.TempDir()
@@ -34,6 +35,8 @@ var buildCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
+
+			project = fields.RepositoryUrl
 		}
 
 		files, err := repository.Files(repDir)
@@ -45,6 +48,8 @@ var buildCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		info["Project"] = append(info["Project"], project)
 
 		infoComponent.Show(info)
 
