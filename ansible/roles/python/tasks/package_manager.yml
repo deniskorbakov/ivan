@@ -5,11 +5,6 @@
       cmd: python3 -m venv .venv
       chdir: "{{ target_dir }}"
 
-  # - name: Check if requirements file exists
-  #   ansible.builtin.stat:
-  #     path: "{{ requirements_path }}"
-  #   register: requirements_file
-
   - name: Set virtual environment path facts for reuse
     ansible.builtin.set_fact:
       venv_path: "{{ target_dir }}/.venv"
@@ -21,7 +16,6 @@
     ansible.builtin.pip:
       requirements: "{{ target_dir }}/requirements.txt"
       virtualenv: "{{ target_dir }}/.venv"
-    # when: requirements_file.stat.exists
   when: package_manager == "pip"
 
 - name: Package Manager uv
