@@ -29,6 +29,7 @@ var info = map[string][]string{
 	"PackageManagers":    {},
 	"Frameworks":         {},
 	"Environments":       {},
+	"ManagePy":           {},
 }
 
 const (
@@ -36,6 +37,7 @@ const (
 	DockerComposePattern = "docker-compose"
 	EntryPointPattern    = "main"
 	EnvPattern           = ".env"
+	ManagePy             = "manage.py"
 )
 
 func Run(files []string, dir string) (map[string][]string, error) {
@@ -57,6 +59,9 @@ func Run(files []string, dir string) (map[string][]string, error) {
 		}
 		if fileByPattern(filename, EnvPattern) {
 			info["Environments"] = append(info["Environments"], relativePath)
+		}
+		if fileByPattern(filename, ManagePy) {
+			info["ManagePy"] = append(info["ManagePy"], relativePath)
 		}
 
 		fileLanguage := language(ext)
@@ -139,7 +144,7 @@ func packageManager(filename string, fullPath string) string {
 func searchInFile(file string, search string) bool {
 	content, err := os.ReadFile(file)
 	if err == nil {
-		fileContent := string(content)
+		fileContent := strings.ToLower(string(content))
 
 		return strings.Contains(fileContent, search)
 	}

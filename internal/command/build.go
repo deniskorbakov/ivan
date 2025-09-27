@@ -3,9 +3,10 @@ package command
 import (
 	"fmt"
 
-	"github.com/deniskorbakov/ivan/internal/ansible"
 	createBuildForm "github.com/deniskorbakov/ivan/internal/component/build"
 	infoComponent "github.com/deniskorbakov/ivan/internal/component/info"
+
+	"github.com/deniskorbakov/ivan/internal/ansible"
 	"github.com/deniskorbakov/ivan/internal/component/output"
 
 	"github.com/deniskorbakov/ivan/configs/envconst"
