@@ -1,6 +1,6 @@
 module github.com/deniskorbakov/ivan
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/charmbracelet/fang v0.4.2
