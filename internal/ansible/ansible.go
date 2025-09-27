@@ -14,7 +14,7 @@ import (
 func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
 	args := []string{
 		"ansible/playbook.yml",
-		"-i", fmt.Sprint("62.109.2.242,"),
+		"-i", fmt.Sprintf("%s,", "62.109.2.242"),
 		"-u", "ansible",
 	}
 
