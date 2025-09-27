@@ -21,7 +21,7 @@
     - name: Deploy with Docker Compose 
       ansible.builtin.command:
         cmd: docker compose up -d 
-        chdir: "{{ target_dit }}"
+        chdir: "{{ target_dir }}"
       register: docker_compose_result
       when: docker_compose_file.stat.exists
 
