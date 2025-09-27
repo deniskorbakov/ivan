@@ -33,11 +33,24 @@ func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
 		"framework": getFirstValue(info, "Frameworks", "null"),
 		"entry_point_path": func() string {
 			frameWork := getFirstValue(info, "Frameworks", "null")
+			language := getFirstValue(info, "Language", "null")
 
 			if frameWork == "django" {
 				managePy := getFirstValue(info, "ManagePy", "null")
 				if managePy != "null" {
 					return managePy
+				}
+			}
+
+			if language == "go" {
+				if len(info["EntryPoints"]) != 0 {
+					for _, entryPoint := range info["EntryPoints"] {
+						ext := filepath.Ext(entryPoint)
+
+						if ext == ".go" {
+							return entryPoint
+						}
+					}
 				}
 			}
 
