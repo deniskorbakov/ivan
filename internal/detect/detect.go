@@ -17,6 +17,8 @@ var languageExtensions = map[string][]string{
 	"PHP":        {".php"},
 	"Rust":       {".rs"},
 	"Swift":      {".swift"},
+	"Assembler":  {".asm"},
+	"YML":        {".yml"},
 }
 
 var info = map[string][]string{
