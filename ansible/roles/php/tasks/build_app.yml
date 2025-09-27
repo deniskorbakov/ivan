@@ -18,6 +18,11 @@
         - build_method == "docker-compose" 
         - docker_compose_file.stat.exists
 
+    - name: Custom ENV File
+      ansible.builtin.copy:
+        src: "{{ target_dir }}/{{ env_path }}"
+        dst: "{{ target_dir }}/.env"
+
     - name: Deploy with Docker Compose 
       ansible.builtin.command:
         cmd: docker compose up -d 
