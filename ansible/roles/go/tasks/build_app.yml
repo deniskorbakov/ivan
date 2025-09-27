@@ -21,7 +21,8 @@
     - name: Custom ENV File
       ansible.builtin.copy:
         src: "{{ target_dir }}/{{ env_path }}"
-        dst: "{{ target_dir }}/.env"
+        dest: "{{ target_dir }}/.env"
+        remote_src: true
 
     - name: Deploy with Docker Compose 
       ansible.builtin.command:
