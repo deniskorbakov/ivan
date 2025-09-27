@@ -18,7 +18,6 @@ var languageExtensions = map[string][]string{
 	"Rust":       {".rs"},
 	"Swift":      {".swift"},
 	"Assembler":  {".asm"},
-	"YML":        {".yml"},
 }
 
 var info = map[string][]string{
