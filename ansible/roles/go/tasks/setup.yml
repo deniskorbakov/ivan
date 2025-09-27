@@ -1,0 +1,82 @@
+---
+- name: Install system dependencies for Golang
+  ansible.builtin.apt:
+    pkg:
+      - git
+      - wget
+      - curl
+      - build-essential
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install specific Go version
+  block:
+    - name: Check if Go is already installed
+      ansible.builtin.stat:
+        path: "/usr/local/go/bin/go"
+      register: go_installed
+
+    - name: Download and install Go
+      ansible.builtin.unarchive:
+        src: "https://go.dev/dl/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+        dest: /usr/local
+        remote_src: yes
+        owner: root
+        group: root
+      when: not go_installed.stat.exists
+
+    - name: Set Go environment variables
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        line: "{{ item }}"
+        create: yes
+      loop:
+        - "GOROOT=/usr/local/go"
+        - "GOPATH=/home/{{ app_user }}/go"
+        - "PATH=/usr/local/go/bin:{{ ansible_env.PATH }}"
+
+  when: build_method == "default"
+
+- name: Handle local source code copying
+  ansible.builtin.include_tasks: copy_local_project.yml
+  when: code_source == "local"
+
+- name: Handle git source code cloning
+  block:
+    - name: Create directory for git clone
+      ansible.builtin.file:
+        path: "{{ target_dir }}"
+        state: directory
+        mode: 0755
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+
+    - name: Clone repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ target_dir }}"
+        version: "{{ branch | default('main') }}"
+      register: clone_result
+      retries: 3
+      delay: 5
+      until: clone_result is succeeded
+  when: code_source == "git"
+
+- name: Create dedicated application user
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    system: yes
+    shell: /bin/bash
+    home: "/home/{{ app_user }}"
+    create_home: yes
+  when: build_method == "default"
+
+- name: Create Go workspace directory
+  ansible.builtin.file:
+    path: "/home/{{ app_user }}/go"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: 0755
+  when: build_method == "default"

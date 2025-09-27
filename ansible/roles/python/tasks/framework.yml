@@ -1,10 +1,19 @@
 - name: Run FastAPI
   block: 
-  - name: Run using FastAPI
-    ansible.builtin.command: 
-      cmd: "{{ venv_unicorn }} {{ 'main.py' | replace('/', '.') | replace('main.py', 'main:app') }}"
-      chdir: "{{ target_dir }}"
+  - name: Create systemd service file
+    ansible.builtin.template:
+      src: python-app.service.j2
+      dest: "/etc/systemd/system/{{ project_name }}.service"
+    notify: reload systemd and start
 
+  - name: Ensure app is started
+    ansible.builtin.systemd:
+      name: "{{ project_name }}"
+      state: started
+      enabled: yes
+      daemon_reload: yes
+    changed_when: false
+    
   - name: FastAPI deployment as successful
     ansible.builtin.set_fact:
       deployment_successful: true
@@ -15,11 +24,19 @@
   
 - name: Run Dajango
   block: 
-  - name: Run using Django
-    ansible.builtin.command: "{{ venv_python3 }} {{ target_dir }}/manage.py {{ item }}"
-    with_items:
-    - migrate
-    - runserver
+  - name: Create systemd service file
+    ansible.builtin.template:
+      src: python-app.service.j2
+      dest: "/etc/systemd/system/{{ project_name }}.service"
+    notify: reload systemd and start
+
+  - name: Ensure app is started
+    ansible.builtin.systemd:
+      name: "{{ project_name }}"
+      state: started
+      enabled: yes
+      daemon_reload: yes
+    changed_when: false
 
   - name: Django deployment as successful
     ansible.builtin.set_fact:

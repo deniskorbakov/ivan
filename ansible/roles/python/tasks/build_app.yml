@@ -8,7 +8,7 @@
   block:  
     - name: Check if docker-compose.yml exists in source directory
       ansible.builtin.stat:
-        path: "{{ target_dir }}/docker-compose.yml"
+        path: "{{ target_dir }}/{{ docker_compose_path }}"
       register: docker_compose_file
       
     - name: Install Docker role if needed and file exists
@@ -21,7 +21,7 @@
     - name: Deploy with Docker Compose 
       ansible.builtin.command:
         cmd: docker compose up -d 
-        chdir: "{{ target_dir }}"
+        chdir: "{{ docker_compose_path }}"
       register: docker_compose_result
       when: docker_compose_file.stat.exists
 
@@ -48,21 +48,23 @@
 - name: Install Python Framework
   ansible.builtin.include_tasks: framework.yml
   when: 
-    - not deployment_successful    
+    - not deployment_successful
+    - framework != None
 
 - name: Default app
   block:
   - name: Create systemd service file
     ansible.builtin.template:
       src: python-app.service.j2
-      dest: /etc/systemd/system/{{ repo_name }}.service
-    notify: reload systemd and start {{ repo_name }}
+      dest: "/etc/systemd/system/{{ project_name }}.service"
+    notify: reload systemd and start
 
   - name: Ensure app is started
     ansible.builtin.systemd:
-      name: "{{ repo_name }}"
+      name: "{{ project_name }}"
       state: started
       enabled: yes
       daemon_reload: yes
     changed_when: false
-  when: build_method == "default"
+  when: 
+    - not deployment_successful  

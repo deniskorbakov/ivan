@@ -4,26 +4,22 @@ After=network.target
 
 [Service]
 Type=simple
-User={{ app_user | default( {{ ansible_user }}) }}
-WorkingDirectory={{ actual_source_path }}
-Environment=PATH={{ actual_source_path }}/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+User={{ ansible_user }}
+WorkingDirectory={{ target_dir }}/
 
 {% if framework == "fastapi" %}
-ExecStart={{ venv_unicorn }} {{ 'main.py' | replace('/', '.') | replace('main.py', 'main:app') }}
+ExecStart={{ venv_unicorn }} {{ entry_point_path | replace('/', '.') | replace('main.py', 'main:app') | regex_replace('^\.', '') }}
 
 {% elif framework == "django" %}
-ExecStart={{ venv_python3 }} {{ target_dir }}/manage.py {{ item }}
+ExecStart={{ venv_python3 }} {{ target_dir }}/{{ entry_point_path }} runserver
 
 {% else %}
-ExecStart={{ actual_source_path }}/.venv/bin/python {{ actual_source_path }}/main.py
+ExecStart={{ venv_python3 }} {{ target_dir }}/{{ entry_point_path }}
 
 {% endif %}
 
 Restart=always       
 RestartSec=5         
-StandardOutput=journal 
-StandardError=journal  
-    
 
 [Install]
 WantedBy=multi-user.target
