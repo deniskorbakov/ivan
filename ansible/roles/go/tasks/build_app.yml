@@ -49,7 +49,7 @@
   block:
   - name: Golang build 
     ansible.builtin.command:
-      cmd: "go run {{ entry_point_path }}"
+      cmd: "go run {{ entry_point_path | regex_replace('^/', '') }}"
       chdir: "{{ target_dir }}"
     register: go_run_result
 
