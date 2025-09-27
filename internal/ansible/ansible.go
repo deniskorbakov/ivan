@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	createBuildForm "github.com/deniskorbakov/ivan/internal/component/build"
@@ -43,6 +44,21 @@ func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
 			return getFirstValue(info, "EntryPoints", "null")
 		}(),
 		"project_name": "null",
+		"env_path": func() string {
+			envs := info["Environments"]
+			if len(envs) == 0 {
+				return "null"
+			}
+
+			for _, file := range envs {
+				filename := strings.ToLower(filepath.Base(file))
+				if filename == ".env" {
+					return file
+				}
+			}
+
+			return getFirstValue(info, "Environments", "null")
+		}(),
 	}
 
 	for key, value := range extraVars {
