@@ -1,6 +1,8 @@
 package command
 
 import (
+	"fmt"
+	"os"
 	createBuildForm "github.com/deniskorbakov/ivan/internal/component/build"
 	infoComponent "github.com/deniskorbakov/ivan/internal/component/info"
 
@@ -53,6 +55,65 @@ var buildCmd = &cobra.Command{
 
 		infoComponent.Show(info)
 
+		err = runAnsiblePlaybook(info, fields)
+		if err != nil {
+			return fmt.Errorf("ansible execution failed: %v", err)
+		}
+
 		return nil
 	},
 }
+func runAnsiblePlaybook(info map[string][]string, fields *createBuildForm.BuildForm) error {
+	// Базовые аргументы для ansible-playbook
+	args := []string{
+		"/ansible/playbook.yml",
+		"-i", fmt.Sprintf("\"%s,\"", getFirstValue(info, "TargetIP", "62.109.2.242")), // inventory
+		"-u", "ansible", // пользователь
+	}
+
+	// Добавляем переменные (-e параметры)
+	extraVars := map[string]string{
+		"target_ip":        getFirstValue(info, "TargetIP", "62.109.2.242"),
+		"language":         getFirstValue(info, "Language", ""),
+		"package_manager":  getFirstValue(info, "PackageManagers", ""),
+		"build_method":     "default",
+		"repo_url":         fields.RepositoryUrl,
+		"framework":        getFirstValue(info, "Frameworks", ""),
+		"entry_point_path": getFirstValue(info, "EntryPoints", ""),
+		"project_name":     getFirstValue(info, "Project", ""),
+	}
+
+	// Добавляем только непустые переменные
+	for key, value := range extraVars {
+		if value != "" {
+			args = append(args, "-e", fmt.Sprintf("%s=%s", key, value))
+		}
+	}
+
+	// Создаем команду
+	ansibleCmd := exec.Command("ansible-playbook", args...)
+	
+	// Настраиваем вывод
+	ansibleCmd.Stdout = os.Stdout
+	ansibleCmd.Stderr = os.Stderr
+	ansibleCmd.Stdin = os.Stdin
+
+	fmt.Printf("Executing: ansible-playbook %v\n", args)
+	
+	// Запускаем команду
+	err := ansibleCmd.Run()
+	if err != nil {
+		return fmt.Errorf("ansible-playbook execution error: %v", err)
+	}
+
+	return nil
+}
+
+// getFirstValue возвращает первое значение из массива или значение по умолчанию
+func getFirstValue(info map[string][]string, key string, defaultValue string) string {
+	if values, exists := info[key]; exists && len(values) > 0 {
+		return values[0]
+	}
+	return defaultValue
+}
+

@@ -1,6 +1,6 @@
 ---
 - name: Deploy Application with Language Check
-  hosts: "{{ target_ip }}"
+  hosts: all
   become: true
   gather_facts: true
 
