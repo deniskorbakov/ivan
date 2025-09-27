@@ -8,7 +8,7 @@
   block:  
     - name: Check if docker-compose.yml exists in source directory
       ansible.builtin.stat:
-        path: "{{ target_dir }}/{{ docker_compose_path }}"
+        path: "{{ target_dir }}/docker-compose.yml"
       register: docker_compose_file
       
     - name: Install Docker role if needed and file exists
@@ -21,7 +21,7 @@
     - name: Deploy with Docker Compose 
       ansible.builtin.command:
         cmd: docker compose up -d 
-        chdir: "{{ docker_compose_path }}"
+        chdir: "{{ target_dit }}"
       register: docker_compose_result
       when: docker_compose_file.stat.exists
 
