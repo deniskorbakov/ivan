@@ -3,7 +3,7 @@ version: 2
 env:
   - GO111MODULE=on
 
-project_name: misha
+project_name: ivan
 
 before:
   hooks:
