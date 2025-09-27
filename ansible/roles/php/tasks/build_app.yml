@@ -23,7 +23,7 @@
         src: "{{ target_dir }}/{{ env_path }}"
         dest: "{{ target_dir }}/.env"
         remote_src: true
-      when: env_path != None
+      when: env_path != "null"
 
     - name: Deploy with Docker Compose 
       ansible.builtin.command:
