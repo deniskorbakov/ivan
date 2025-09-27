@@ -47,7 +47,12 @@
 
 - name: Default app
   block:
-  - name: Golang build 
+  - name: Go Vendor 
+    ansible.builtin.command:
+      cmd: "go mod vendor "
+      chdir: "{{ target_dir }}"
+
+  - name: Go Build 
     ansible.builtin.command:
       cmd: "go run {{ entry_point_path | regex_replace('^/', '') }}"
       chdir: "{{ target_dir }}"
