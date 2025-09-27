@@ -13,7 +13,7 @@
     - name: Include Golang role if matched
       ansible.builtin.include_role:
         name: go
-      when: language == "golang"
+      when: language == "go"
     
     - name: Include PHP role if matched
       ansible.builtin.include_role:
