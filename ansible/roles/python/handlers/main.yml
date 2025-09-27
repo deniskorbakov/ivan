@@ -1,0 +1,6 @@
+---
+- name: reload systemd and start {{ repo_name }}
+  ansible.builtin.systemd:
+    name: "{{ repo_name }}"
+    state: restarted
+    daemon_reload: yes

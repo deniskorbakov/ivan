@@ -1,0 +1,43 @@
+---
+- name: Ensure git and python are installed
+  ansible.builtin.apt:
+    name: 
+      - git 
+      - python3
+      - python3-venv
+      - python3-pip
+    state: present
+    update_cache: yes
+
+- name: Create Dir for Project
+  ansible.builtin.file:
+    path: "{{ target_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Set code source 
+  ansible.builtin.set_fact:
+    code_source: "{{ 'local' if local_path is defined else 'git' }}"
+
+- name: Git clone
+  block:
+  - name: Clone repository if using git source
+    ansible.builtin.git:
+      repo: "{{ repo_url }}"
+      dest: "{{ target_dir }}"
+      version: "{{ branch | default('main') }}"
+    register: clone_result
+    retries: 3
+    delay: 5
+    until: clone_result is succeeded
+
+  - name: Extract repository name
+    ansible.builtin.set_fact:
+      repo_name: "{{ repo_url | basename | regex_replace('.git$', '') }}"
+  when: code_source == "git"
+
+- name: Copy entire folder to remote host
+  ansible.builtin.copy:
+    src: "{{ local_path }}"
+    dest: "{{ target_dir }}"
+  when: code_source == "local"

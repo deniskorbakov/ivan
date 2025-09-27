@@ -1,0 +1,11 @@
+---
+- name: Deploy Application with Language Check
+  hosts: "{{ target_ip }}"
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Include Python role if matched
+      ansible.builtin.include_role:
+        name: python
+      when: language == "python"

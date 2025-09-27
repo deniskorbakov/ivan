@@ -1,0 +1,30 @@
+- name: Run FastAPI
+  block: 
+  - name: Run using FastAPI
+    ansible.builtin.command: 
+      cmd: "{{ venv_unicorn }} {{ 'main.py' | replace('/', '.') | replace('main.py', 'main:app') }}"
+      chdir: "{{ target_dir }}"
+
+  - name: FastAPI deployment as successful
+    ansible.builtin.set_fact:
+      deployment_successful: true
+      current_method: "default"
+  when:
+    - not deployment_successful    
+    - framework == "fastapi"
+  
+- name: Run Dajango
+  block: 
+  - name: Run using Django
+    ansible.builtin.command: "{{ venv_python3 }} {{ target_dir }}/manage.py {{ item }}"
+    with_items:
+    - migrate
+    - runserver
+
+  - name: Django deployment as successful
+    ansible.builtin.set_fact:
+      deployment_successful: true
+      current_method: "default"
+  when: 
+    - not deployment_successful     
+    - framework == "django" 

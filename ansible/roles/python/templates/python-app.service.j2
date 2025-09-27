@@ -1,0 +1,29 @@
+[Unit]
+Description={{ app_description | default("Python Application") }}
+After=network.target
+
+[Service]
+Type=simple
+User={{ app_user | default( {{ ansible_user }}) }}
+WorkingDirectory={{ actual_source_path }}
+Environment=PATH={{ actual_source_path }}/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+
+{% if framework == "fastapi" %}
+ExecStart={{ venv_unicorn }} {{ 'main.py' | replace('/', '.') | replace('main.py', 'main:app') }}
+
+{% elif framework == "django" %}
+ExecStart={{ venv_python3 }} {{ target_dir }}/manage.py {{ item }}
+
+{% else %}
+ExecStart={{ actual_source_path }}/.venv/bin/python {{ actual_source_path }}/main.py
+
+{% endif %}
+
+Restart=always       
+RestartSec=5         
+StandardOutput=journal 
+StandardError=journal  
+    
+
+[Install]
+WantedBy=multi-user.target

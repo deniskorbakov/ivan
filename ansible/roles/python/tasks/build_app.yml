@@ -1,0 +1,68 @@
+---
+- name: Initialize deployment tracking variables
+  ansible.builtin.set_fact:
+    deployment_successful: false    
+    attempted_methods: []           
+
+- name: Attempt Docker Compose deployment 
+  block:  
+    - name: Check if docker-compose.yml exists in source directory
+      ansible.builtin.stat:
+        path: "{{ target_dir }}/docker-compose.yml"
+      register: docker_compose_file
+      
+    - name: Install Docker role if needed and file exists
+      ansible.builtin.include_role:
+        name: docker
+      when: 
+        - build_method == "docker-compose" 
+        - docker_compose_file.stat.exists
+
+    - name: Deploy with Docker Compose 
+      ansible.builtin.command:
+        cmd: docker compose up -d 
+        chdir: "{{ target_dir }}"
+      register: docker_compose_result
+      when: docker_compose_file.stat.exists
+
+    - name: Docker Compose deployment as successful
+      ansible.builtin.set_fact:
+        deployment_successful: true
+        current_method: "docker-compose"
+      when: docker_compose_result.rc == 0
+
+
+  rescue: 
+    - name: Log Docker Compose failure for debugging
+      ansible.builtin.debug:
+        msg: "Docker Compose deployment failed, falling back to next method"
+  when: 
+    - build_method == "docker-compose" 
+    - not deployment_successful            
+
+- name: Install Python dependencies using selected package manager
+  ansible.builtin.include_tasks: package_manager.yml
+  when: 
+    - not deployment_successful    
+
+- name: Install Python Framework
+  ansible.builtin.include_tasks: framework.yml
+  when: 
+    - not deployment_successful    
+
+- name: Default app
+  block:
+  - name: Create systemd service file
+    ansible.builtin.template:
+      src: python-app.service.j2
+      dest: /etc/systemd/system/{{ repo_name }}.service
+    notify: reload systemd and start {{ repo_name }}
+
+  - name: Ensure app is started
+    ansible.builtin.systemd:
+      name: "{{ repo_name }}"
+      state: started
+      enabled: yes
+      daemon_reload: yes
+    changed_when: false
+  when: build_method == "default"

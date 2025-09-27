@@ -1,0 +1,46 @@
+- name: Package Manager pip
+  block:
+  - name: Create Python venv
+    ansible.builtin.command:
+      cmd: python3 -m venv .venv
+      chdir: "{{ target_dir }}"
+
+  # - name: Check if requirements file exists
+  #   ansible.builtin.stat:
+  #     path: "{{ requirements_path }}"
+  #   register: requirements_file
+
+  - name: Set virtual environment path facts for reuse
+    ansible.builtin.set_fact:
+      venv_path: "{{ target_dir }}/.venv"
+      venv_python3: "{{ target_dir }}/.venv/bin/python3"
+      venv_pip: "{{ target_dir }}/.venv/bin/pip"
+      venv_unicorn: "{{ target_dir }}/.venv/bin/uvicorn"
+
+  - name: Install pip packages
+    ansible.builtin.pip:
+      requirements: "{{ target_dir }}/requirements.txt"
+      virtualenv: "{{ target_dir }}/.venv"
+    # when: requirements_file.stat.exists
+  when: package_manager == "pip"
+
+- name: Package Manager uv
+  block:
+  - name: Install UV
+    ansible.builtin.command: pipx install uv
+
+  - name: Set virtual environment path facts for reuse
+    ansible.builtin.set_fact:
+      venv_path: "{{ target_dir }}/.venv"
+      venv_python3: "{{ target_dir }}/.venv/bin/python3"
+      venv_pip: "{{ target_dir }}/.venv/bin/pip"
+      venv_unicorn: "{{ target_dir }}/.venv/bin/uvicorn"
+
+  - name: Install uv packages
+    ansible.builtin.command: "~/.local/bin/uv sync --directory {{ target_dir }}"
+  when: package_manager == "uv"
+
+- name: Fail on unsupported package manager
+  ansible.builtin.fail:
+    msg: "Unsupported package_manager: {{ package_manager }}. Refactor with supported one (pip, uv)."
+  when: package_manager not in ['pip', 'uv']

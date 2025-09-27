@@ -1,0 +1,6 @@
+---
+- name: Setup OS
+  ansible.builtin.include_tasks: setup.yml 
+
+- name: Build app python
+  ansible.builtin.include_tasks: build_app.yml
