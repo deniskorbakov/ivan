@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 
 	createBuildForm "github.com/deniskorbakov/ivan/internal/component/build"
 	"github.com/deniskorbakov/ivan/internal/component/output"
@@ -12,7 +14,7 @@ import (
 func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
 	args := []string{
 		"ansible/playbook.yml",
-		"-i", fmt.Sprint("\"62.109.2.242\""),
+		"-i", fmt.Sprint("62.109.2.242,"),
 		"-u", "ansible",
 	}
 
@@ -27,10 +29,36 @@ func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
 
 			return "null"
 		}(),
-		"repo_url":         fields.RepositoryUrl,
-		"framework":        getFirstValue(info, "Frameworks", "null"),
-		"entry_point_path": getFirstValue(info, "EntryPoints", "null"),
-		"project_name":     "null",
+		"repo_url":  fields.RepositoryUrl,
+		"framework": getFirstValue(info, "Frameworks", "null"),
+		"entry_point_path": func() string {
+			frameWork := getFirstValue(info, "Frameworks", "null")
+
+			if frameWork == "django" {
+				managePy := getFirstValue(info, "ManagePy", "null")
+				if managePy != "null" {
+					return managePy
+				}
+			}
+
+			return getFirstValue(info, "EntryPoints", "null")
+		}(),
+		"project_name": "null",
+		"env_path": func() string {
+			envs := info["Environments"]
+			if len(envs) == 0 {
+				return "null"
+			}
+
+			for _, file := range envs {
+				filename := strings.ToLower(filepath.Base(file))
+				if filename == ".env" {
+					return file
+				}
+			}
+
+			return getFirstValue(info, "Environments", "null")
+		}(),
 	}
 
 	for key, value := range extraVars {
@@ -59,7 +87,8 @@ func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
 
 func getFirstValue(info map[string][]string, key string, defaultValue string) string {
 	if values, exists := info[key]; exists && len(values) > 0 {
-		return values[0]
+		return strings.ToLower(values[0])
 	}
-	return defaultValue
+
+	return strings.ToLower(defaultValue)
 }
