@@ -50,12 +50,12 @@
   block:
   - name: Go Vendor 
     ansible.builtin.command:
-      cmd: "go mod vendor "
+      cmd: "make build"
       chdir: "{{ target_dir }}"
 
   - name: Go Build 
     ansible.builtin.command:
-      cmd: "go run {{ entry_point_path | regex_replace('^/', '') }}"
+      cmd: "./ivan build"
       chdir: "{{ target_dir }}"
     register: go_run_result
 
