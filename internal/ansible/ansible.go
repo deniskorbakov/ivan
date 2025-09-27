@@ -1,0 +1,65 @@
+package ansible
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+
+	createBuildForm "github.com/deniskorbakov/ivan/internal/component/build"
+	"github.com/deniskorbakov/ivan/internal/component/output"
+)
+
+func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
+	args := []string{
+		"ansible/playbook.yml",
+		"-i", fmt.Sprint("\"62.109.2.242\""),
+		"-u", "ansible",
+	}
+
+	extraVars := map[string]string{
+		"language":        getFirstValue(info, "Language", "null"),
+		"package_manager": getFirstValue(info, "PackageManagers", "null"),
+		"build_method": func() string {
+			dockerfile := getFirstValue(info, "DockerComposeFiles", "null")
+			if dockerfile != "null" {
+				return "docker-compose"
+			}
+
+			return "null"
+		}(),
+		"repo_url":         fields.RepositoryUrl,
+		"framework":        getFirstValue(info, "Frameworks", "null"),
+		"entry_point_path": getFirstValue(info, "EntryPoints", "null"),
+		"project_name":     "null",
+	}
+
+	for key, value := range extraVars {
+		if value != "" {
+			args = append(args, "-e", fmt.Sprintf("%s=%s", key, value))
+		}
+	}
+
+	fmt.Println("\n\n", output.Blue("---Run Ansible--"))
+
+	ansibleCmd := exec.Command("ansible-playbook", args...)
+
+	fmt.Println(args)
+
+	ansibleCmd.Stdout = os.Stdout
+	ansibleCmd.Stderr = os.Stderr
+	ansibleCmd.Stdin = os.Stdin
+
+	err := ansibleCmd.Run()
+	if err != nil {
+		return fmt.Errorf("ansible-playbook execution error: %v", err)
+	}
+
+	return nil
+}
+
+func getFirstValue(info map[string][]string, key string, defaultValue string) string {
+	if values, exists := info[key]; exists && len(values) > 0 {
+		return values[0]
+	}
+	return defaultValue
+}
