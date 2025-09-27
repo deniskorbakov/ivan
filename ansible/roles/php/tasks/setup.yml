@@ -1,12 +1,10 @@
 ---
-- name: Install system dependencies for Golang
+- name: Ensure git and python are installed
   ansible.builtin.apt:
-    pkg:
-      - git
-      - golang-go
+    name: 
+      - git 
     state: present
     update_cache: yes
-    cache_valid_time: 3600
 
 - name: Create Dir for Project
   ansible.builtin.file:
@@ -40,5 +38,3 @@
     src: "{{ local_path }}"
     dest: "{{ target_dir }}"
   when: code_source == "local"
-
-    

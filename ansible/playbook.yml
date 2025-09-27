@@ -9,3 +9,8 @@
       ansible.builtin.include_role:
         name: python
       when: language == "python"
+
+    - name: Include Golang role if matched
+      ansible.builtin.include_role:
+        name: go
+      when: language == "golang"

@@ -1,0 +1,40 @@
+---
+- name: Initialize deployment tracking variables
+  ansible.builtin.set_fact:
+    deployment_successful: false    
+    attempted_methods: []           
+
+- name: Attempt Docker Compose deployment 
+  block:  
+    - name: Check if docker-compose.yml exists in source directory
+      ansible.builtin.stat:
+        path: "{{ target_dir }}/{{ docker_compose_path }}"
+      register: docker_compose_file
+      
+    - name: Install Docker role if needed and file exists
+      ansible.builtin.include_role:
+        name: docker
+      when: 
+        - build_method == "docker-compose" 
+        - docker_compose_file.stat.exists
+
+    - name: Deploy with Docker Compose 
+      ansible.builtin.command:
+        cmd: docker compose up -d 
+        chdir: "{{ docker_compose_path }}"
+      register: docker_compose_result
+      when: docker_compose_file.stat.exists
+
+    - name: Docker Compose deployment as successful
+      ansible.builtin.set_fact:
+        deployment_successful: true
+        current_method: "docker-compose"
+      when: docker_compose_result.rc == 0
+
+
+  rescue: 
+    - name: Log Docker Compose failure for debugging
+      ansible.builtin.debug:
+        msg: "Docker Compose deployment failed, falling back to next method"
+  when: 
+    - build_method == "docker-compose"    

@@ -2,5 +2,5 @@
 - name: Setup OS
   ansible.builtin.include_tasks: setup.yml 
 
-- name: Build app Go
+- name: Build app PHP
   ansible.builtin.include_tasks: build_app.yml
