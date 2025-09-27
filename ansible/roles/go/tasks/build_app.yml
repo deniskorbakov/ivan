@@ -50,6 +50,7 @@
   - name: Golang build 
     ansible.builtin.command:
       cmd: "go run {{ entry_point_path }}"
+      chdir: "{{ target_dir }}"
     register: go_run_result
 
   - name: Print return 
