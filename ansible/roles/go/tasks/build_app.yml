@@ -20,8 +20,8 @@
 
     - name: Custom ENV File
       ansible.builtin.copy:
-        src: {{ target_dir }}/{{ env_path }}
-        dst: {{ target_dir }}/.env
+        src: "{{ target_dir }}/{{ env_path }}"
+        dst: "{{ target_dir }}/.env"
 
     - name: Deploy with Docker Compose 
       ansible.builtin.command:
@@ -43,5 +43,19 @@
   when: 
     - build_method == "docker-compose" 
     - not deployment_successful
+
+- name: Default app
+  block:
+  - name: Golang build 
+    ansible.builtin.command:
+      cmd: "go run {{ entry_point_path }}"
+    register: go_run_result
+
+  - name: Print return 
+    ansible.builtin.debug:
+      var: go_run_result
+  when: 
+    - not deployment_successful  
+
 
 

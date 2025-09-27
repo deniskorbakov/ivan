@@ -1,5 +1,5 @@
 ---
-- name: Ensure git and python are installed
+- name: Ensure git installed
   ansible.builtin.apt:
     name: 
       - git 
