@@ -77,6 +77,8 @@ The list of commands that you can use in this Build and Deploy
 3\) Go-проекты без Docker Compose
 Сборка бинарника и запуск его на сервере с помощью стандартных средств языка.
 
+<img src=".assets/diagram.png" width="650">
+
 ### 🔌 Build
 
 The command to get rep info and build without ansible
