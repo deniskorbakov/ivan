@@ -15,7 +15,7 @@ func Exec(info map[string][]string, fields *createBuildForm.Fields) error {
 	args := []string{
 		"ansible/playbook.yml",
 		"-i", fmt.Sprintf("%s,", fields.RemoteHost),
-		"-u", fmt.Sprintf("%s", fields.RemoteUser),
+		"-u", fields.RemoteUser,
 	}
 
 	extraVars := map[string]string{
