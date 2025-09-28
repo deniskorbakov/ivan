@@ -53,6 +53,12 @@ The list of commands that you can use in this Build and Deploy
 
 The command to get rep info and build without ansible
 
+For ansible to work over ssh, you must transfer your key to the server.
+
+```bash
+ivan build
+```
+
 <img src=".assets/build.svg" width="650">
 
 ## 🧪 Testing
