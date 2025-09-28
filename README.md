@@ -7,6 +7,8 @@
 
 Ivan - Auto build and deploy pipline on Go with Ansible
 
+Solving the ``Amazing Automata`` case at the hackathon from [ddg](https://hackathon2025.ddos-guard.net/)
+
 Made using data from packages:
 
 * [cobra](https://github.com/spf13/cobra)
