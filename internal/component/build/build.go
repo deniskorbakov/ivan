@@ -37,6 +37,16 @@ func Run() (*Fields, error) {
 		).WithHideFunc(func() bool {
 			return urlRepConfirm
 		}),
+		huh.NewGroup(
+			huh.NewInput().
+				Title("Remote User").
+				Description("ssh user for deploy ansible").
+				Value(&fields.RemoteUser),
+			huh.NewInput().
+				Title("Remote Host").
+				Description("remote host for deploy ansible").
+				Value(&fields.RemoteHost),
+		),
 	).WithShowHelp(true).Run()
 	if err != nil {
 		return nil, err

@@ -4,4 +4,6 @@ package build
 type Fields struct {
 	RepositoryUrl   string
 	RepositoryLocal string
+	RemoteUser      string
+	RemoteHost      string
 }
