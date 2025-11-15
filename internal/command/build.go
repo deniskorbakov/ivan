@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"log"
 
 	createBuildForm "github.com/deniskorbakov/ivan/internal/component/build"
 	infoComponent "github.com/deniskorbakov/ivan/internal/component/info"
@@ -35,6 +36,12 @@ var buildCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
+			defer func() {
+				err := storage.DeleteDir(repDir)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}()
 
 			err = repository.Save(repDir, fields.RepositoryUrl)
 			if err != nil {
