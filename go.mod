@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/charmbracelet/fang v0.4.2
 	github.com/charmbracelet/huh v0.8.0
-	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.3.0.20250917201909-41ff0bf215ea
+	github.com/charmbracelet/lipgloss/v2 v2.0.0
 	github.com/go-git/go-git/v5 v5.16.5
 	github.com/spf13/cobra v1.10.2
 )
